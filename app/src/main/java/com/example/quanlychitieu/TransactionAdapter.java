@@ -23,7 +23,14 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction t = list.get(position);
-        holder.tvNote.setText(t.getNote());
+
+        // Ghép Danh mục và Ghi chú lại cho đẹp
+        if (t.getNote().isEmpty()) {
+            holder.tvNote.setText(t.getCategory());
+        } else {
+            holder.tvNote.setText(t.getCategory() + " (" + t.getNote() + ")");
+        }
+
         holder.tvAmount.setText("- " + t.getAmount() + " VNĐ");
     }
 
