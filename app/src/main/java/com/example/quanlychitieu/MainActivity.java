@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.List;
+import java.text.DecimalFormat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,19 +59,24 @@ public class MainActivity extends AppCompatActivity {
         updateUI();
     }
 
-    private void updateUI() {
-        // 1. Cập nhật tổng số dư trên cùng
-        double total = db.getTotalAmount();
-        tvTotalBalance.setText(total + " VNĐ");
+    public void updateUI() {
+        // 1. Khai báo cái định dạng số (Chỉ khai báo 1 lần duy nhất ở đây)
+        java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
 
-        // 2. Lấy danh sách GOM NHÓM từ database
+        // 2. Cập nhật tổng số dư trên cùng
+        double total = db.getTotalAmount();
+        // Dùng cái formatter đã khai báo ở trên
+        String formattedTotal = formatter.format(total);
+        tvTotalBalance.setText(formattedTotal + " VNĐ");
+
+        // 3. Lấy danh sách GOM NHÓM từ database
         java.util.List<CategorySummary> summaryList = db.getCategorySummaries();
 
-        // 3. Đổ danh sách vào màn hình
+        // 4. Đổ danh sách vào màn hình
         adapter = new CategoryAdapter(summaryList);
         rvTransactions.setAdapter(adapter);
 
-        // 4. BƠM DỮ LIỆU CHO BIỂU ĐỒ (Nãy mày thiếu dòng này nên nó không hiện)
+        // 5. Bơm dữ liệu cho biểu đồ
         setupPieChart(summaryList);
     }
 

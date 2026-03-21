@@ -11,12 +11,11 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     public DatabaseHelper(Context context) {
-        super(context, "ChiTieuDB", null, 2); // Tăng version lên 2
+        super(context, "ChiTieuDB", null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Thêm cột category kiểu TEXT
         db.execSQL("CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL, note TEXT, category TEXT)");
     }
 
@@ -26,14 +25,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // Hàm lưu tiền giờ có thêm biến category
     public boolean insertTransaction(double amount, String note, String category) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("amount", amount);
         values.put("note", note);
-        values.put("category", category); // Lưu danh mục vào đây
+        values.put("category", category);
         long result = db.insert("transactions", null, values);
+        db.close();
         return result != -1;
     }
 
@@ -48,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return total;
     }
 
+    // --- SỬA HÀM NÀY ĐỂ LẤY CẢ ID ---
     public List<Transaction> getAllTransactions() {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -56,46 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 list.add(new Transaction(
-                        cursor.getDouble(cursor.getColumnIndexOrThrow("amount")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("note")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("category")) // Lôi danh mục ra
-                ));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return list;
-    }
-
-    // HÀM MỚI ĐÃ ĐƯỢC CHO VÀO TRONG CLASS RỒI NHÉ
-    public List<CategorySummary> getCategorySummaries() {
-        List<CategorySummary> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Câu lệnh gom nhóm thần thánh
-        Cursor cursor = db.rawQuery("SELECT category, SUM(amount) FROM transactions GROUP BY category", null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(new CategorySummary(
-                        cursor.getString(0), // Tên danh mục
-                        cursor.getDouble(1)  // Tổng tiền của danh mục đó
-                ));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return list;
-    }
-    // Hàm lấy danh sách chi tiết theo từng danh mục
-    public List<Transaction> getTransactionsByCategory(String categoryName) {
-        List<Transaction> list = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        // Lệnh lọc: CHỈ lấy những thằng có category khớp với tên truyền vào
-        Cursor cursor = db.rawQuery("SELECT * FROM transactions WHERE category = ? ORDER BY id DESC", new String[]{categoryName});
-
-        if (cursor.moveToFirst()) {
-            do {
-                list.add(new Transaction(
+                        cursor.getInt(cursor.getColumnIndexOrThrow("id")), // Lấy ID
                         cursor.getDouble(cursor.getColumnIndexOrThrow("amount")),
                         cursor.getString(cursor.getColumnIndexOrThrow("note")),
                         cursor.getString(cursor.getColumnIndexOrThrow("category"))
@@ -104,5 +65,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
         return list;
+    }
+
+    public List<CategorySummary> getCategorySummaries() {
+        List<CategorySummary> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT category, SUM(amount) FROM transactions GROUP BY category", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(new CategorySummary(
+                        cursor.getString(0),
+                        cursor.getDouble(1)
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    // --- SỬA HÀM NÀY ĐỂ LẤY CẢ ID CHO MÀN HÌNH CHI TIẾT ---
+    public List<Transaction> getTransactionsByCategory(String categoryName) {
+        List<Transaction> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM transactions WHERE category = ? ORDER BY id DESC", new String[]{categoryName});
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(new Transaction(
+                        cursor.getInt(cursor.getColumnIndexOrThrow("id")), // Lấy ID quan trọng nhất ở đây
+                        cursor.getDouble(cursor.getColumnIndexOrThrow("amount")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("note")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("category"))
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    // Hàm xóa theo ID (Đã có sẵn)
+    public void deleteTransactionById(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("transactions", "id = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+
+    // Hàm xóa cả cụm danh mục (Nếu mày vẫn muốn giữ chức năng này ở màn hình chính)
+    public void deleteTransactionsByCategory(String categoryName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("transactions", "category = ?", new String[]{categoryName});
+        db.close();
     }
 }
