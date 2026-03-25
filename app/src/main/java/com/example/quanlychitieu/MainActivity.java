@@ -72,9 +72,10 @@ public class MainActivity extends AppCompatActivity {
         String savedBudget = sharedPreferences.getString("limit", "0");
         etBudget.setText(savedBudget);
 
-        // 5. Sự kiện nút bấm
+        // Trong MainActivity.java
         fabAdd.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddTransactionActivity.class);
+            intent.putExtra("USERNAME", getIntent().getStringExtra("USERNAME"));
             startActivity(intent);
         });
 

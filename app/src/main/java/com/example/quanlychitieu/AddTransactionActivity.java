@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView; // Nhớ có dòng này
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +15,7 @@ public class AddTransactionActivity extends AppCompatActivity {
     private EditText etAmount, etNote;
     private Spinner spinnerCategory;
     private Button btnSave;
-    private ImageView btnBackAdd; // Khai báo nút lùi
+    private ImageView btnBackAdd;
     private DatabaseHelper db;
 
     @Override
@@ -28,42 +28,47 @@ public class AddTransactionActivity extends AppCompatActivity {
         etNote = findViewById(R.id.etNote);
         spinnerCategory = findViewById(R.id.spinnerCategory);
         btnSave = findViewById(R.id.btnSave);
-        btnBackAdd = findViewById(R.id.btnBackAdd); // Ánh xạ nút lùi
+        btnBackAdd = findViewById(R.id.btnBackAdd);
         db = new DatabaseHelper(this);
 
-        // 2. Xử lý nút Lùi (Đây là đoạn quan trọng nhất)
-        btnBackAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish(); // Lệnh này để đóng màn hình hiện tại và quay về Main
-            }
-        });
+        // 2. Xử lý nút Lùi
+        btnBackAdd.setOnClickListener(v -> finish());
 
-        // 3. Đổ dữ liệu vào Spinner danh mục
+        // 3. Đổ dữ liệu vào Spinner
         String[] categories = {"Ăn uống", "Di chuyển", "Mua sắm", "Hóa đơn", "Giải trí", "Khác"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         spinnerCategory.setAdapter(adapter);
 
         // 4. Xử lý nút Lưu
-        btnSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String amountStr = etAmount.getText().toString();
-                String note = etNote.getText().toString();
-                String category = spinnerCategory.getSelectedItem().toString();
+        btnSave.setOnClickListener(view -> {
+            String amountStr = etAmount.getText().toString();
+            String note = etNote.getText().toString();
+            String category = spinnerCategory.getSelectedItem().toString();
 
-                if (amountStr.isEmpty()) {
-                    Toast.makeText(AddTransactionActivity.this, "Nhập số tiền đã cu!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+            // LẤY TÊN NGƯỜI DÙNG ĐỂ LƯU KÈM (QUAN TRỌNG)
+            // Tạm thời tao lấy từ Intent, nếu không có thì để mặc định là "User_Hải"
+            String username = getIntent().getStringExtra("USERNAME");
+            if (username == null) username = "User_Hải";
 
+            if (amountStr.isEmpty()) {
+                Toast.makeText(this, "Nhập số tiền đi cu!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            try {
                 double amount = Double.parseDouble(amountStr);
-                boolean isInserted = db.insertTransaction(amount, note, category);
+
+                // FIX LỖI Ở ĐÂY: Truyền đủ 4 tham số (amount, note, category, username)
+                boolean isInserted = db.insertTransaction(amount, note, category, username);
 
                 if (isInserted) {
-                    Toast.makeText(AddTransactionActivity.this, "Đã lưu!", Toast.LENGTH_SHORT).show();
-                    finish(); // Lưu xong cũng tự động quay về Main
+                    Toast.makeText(this, "Đã lưu!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Lỗi lưu dữ liệu!", Toast.LENGTH_SHORT).show();
                 }
+            } catch (Exception e) {
+                Toast.makeText(this, "Tiền phải là số nhé mày!", Toast.LENGTH_SHORT).show();
             }
         });
     }
