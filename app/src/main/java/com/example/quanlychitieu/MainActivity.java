@@ -1,112 +1,196 @@
 package com.example.quanlychitieu;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton; // Thêm cái này
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import java.util.List;
+
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar; // Thêm cái này để lấy thời gian thực
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView tvTotalBalance;
+    private TextView tvTotalBalance, tvCurrentMonth;
     private FloatingActionButton fabAdd;
     private RecyclerView rvTransactions;
+    private EditText etBudget;
+    private PieChart pieChart;
+    private ImageButton btnPrevMonth, btnNextMonth;
 
-    // Đã sửa lại thành CategoryAdapter cho mày
     private CategoryAdapter adapter;
     private DatabaseHelper db;
-    private com.github.mikephil.charting.charts.PieChart pieChart;
+    private android.content.SharedPreferences sharedPreferences;
+
+    // BIẾN LƯU THÁNG/NĂM ĐANG XEM
+    private int currentMonth, currentYear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Ánh xạ toàn bộ giao diện
+        // 1. Ánh xạ giao diện
         tvTotalBalance = findViewById(R.id.tvTotalBalance);
+        tvCurrentMonth = findViewById(R.id.tvCurrentMonth);
+        btnPrevMonth = findViewById(R.id.btnPrevMonth);
+        btnNextMonth = findViewById(R.id.btnNextMonth);
         fabAdd = findViewById(R.id.fabAdd);
         rvTransactions = findViewById(R.id.rvTransactions);
         pieChart = findViewById(R.id.pieChart);
+        etBudget = findViewById(R.id.etBudget);
 
-        // 2. Khởi tạo Database
+        // 2. Khởi tạo dữ liệu thời gian thực
+        Calendar cal = Calendar.getInstance();
+        currentMonth = cal.get(Calendar.MONTH) + 1; // Tháng trong Java từ 0-11
+        currentYear = cal.get(Calendar.YEAR);
+
         db = new DatabaseHelper(this);
+        sharedPreferences = getSharedPreferences("BudgetPrefs", MODE_PRIVATE);
 
         // 3. Cài đặt RecyclerView
         rvTransactions.setLayoutManager(new LinearLayoutManager(this));
 
-        // 4. Nút bấm chuyển sang màn hình thêm giao dịch
-        fabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddTransactionActivity.class);
-                startActivity(intent);
+        // 4. Load hạn mức
+        String savedBudget = sharedPreferences.getString("limit", "0");
+        etBudget.setText(savedBudget);
+
+        // 5. Sự kiện nút bấm
+        fabAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddTransactionActivity.class);
+            startActivity(intent);
+        });
+
+        // Nút lùi tháng
+        btnPrevMonth.setOnClickListener(v -> {
+            if (currentMonth == 1) {
+                currentMonth = 12;
+                currentYear--;
+            } else {
+                currentMonth--;
+            }
+            updateUI();
+        });
+
+        // Nút tiến tháng
+        btnNextMonth.setOnClickListener(v -> {
+            if (currentMonth == 12) {
+                currentMonth = 1;
+                currentYear++;
+            } else {
+                currentMonth++;
+            }
+            updateUI();
+        });
+
+        // 6. Thay đổi hạn mức
+        etBudget.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                sharedPreferences.edit().putString("limit", s.toString()).apply();
+                updateUI();
             }
         });
 
-        // 5. Load dữ liệu lúc mới vào app
         updateUI();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Cập nhật lại mỗi khi quay về từ màn hình thêm (để nó update biểu đồ)
         updateUI();
     }
 
     public void updateUI() {
-        // 1. Khai báo cái định dạng số (Chỉ khai báo 1 lần duy nhất ở đây)
-        java.text.DecimalFormat formatter = new java.text.DecimalFormat("#,###");
+        // Cập nhật tiêu đề tháng hiển thị
+        tvCurrentMonth.setText(String.format("Tháng %02d/%d", currentMonth, currentYear));
 
-        // 2. Cập nhật tổng số dư trên cùng
-        double total = db.getTotalAmount();
-        // Dùng cái formatter đã khai báo ở trên
-        String formattedTotal = formatter.format(total);
-        tvTotalBalance.setText(formattedTotal + " VNĐ");
+        // --- 1. Lấy dữ liệu THEO THÁNG từ DatabaseHelper ---
+        double total = db.getTotalAmountByMonth(currentMonth, currentYear);
+        List<CategorySummary> summaryList = db.getCategorySummariesByMonth(currentMonth, currentYear);
 
-        // 3. Lấy danh sách GOM NHÓM từ database
-        java.util.List<CategorySummary> summaryList = db.getCategorySummaries();
+        // Hiển thị tiền
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        tvTotalBalance.setText(formatter.format(total) + " VNĐ");
 
-        // 4. Đổ danh sách vào màn hình
+        // Logic hạn mức
+        String budgetStr = etBudget.getText().toString();
+        double budget = 0;
+        try { if (!budgetStr.isEmpty()) budget = Double.parseDouble(budgetStr); } catch (Exception e) {}
+
+        if (budget > 0 && total > budget) {
+            tvTotalBalance.setTextColor(Color.RED);
+            // Lưu ý: Tao tạm ẩn cái AlertDialog ở đây vì mỗi lần bấm nút chuyển tháng nó sẽ hiện lên liên tục gây phiền.
+            // Tao dùng Toast cho nó gọn hơn.
+            Toast.makeText(this, "⚠️ Tiêu quá hạn mức tháng này rồi!", Toast.LENGTH_SHORT).show();
+        } else {
+            tvTotalBalance.setTextColor(Color.parseColor("#4CAF50"));
+        }
+
+        // --- 2. Cập nhật Biểu đồ ---
+        setupPieChart(summaryList);
+
+        // --- 3. Cập nhật Danh sách ---
         adapter = new CategoryAdapter(summaryList);
         rvTransactions.setAdapter(adapter);
 
-        // 5. Bơm dữ liệu cho biểu đồ
-        setupPieChart(summaryList);
+        // --- 4. Tìm kiếm ---
+        SearchView searchView = findViewById(R.id.searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override public boolean onQueryTextSubmit(String query) { return false; }
+            @Override public boolean onQueryTextChange(String newText) {
+                if (adapter != null) adapter.filter(newText);
+                return true;
+            }
+        });
     }
 
-    private void setupPieChart(java.util.List<CategorySummary> summaryList) {
-        java.util.ArrayList<com.github.mikephil.charting.data.PieEntry> entries = new java.util.ArrayList<>();
-
-        // Quét danh sách, cứ có danh mục nào là nhét vào một miếng bánh
+    private void setupPieChart(List<CategorySummary> summaryList) {
+        ArrayList<PieEntry> entries = new ArrayList<>();
         for (CategorySummary item : summaryList) {
-            // Chỉ vẽ những danh mục có tiền lớn hơn 0 cho nó khỏi lỗi
             if (item.getTotalAmount() > 0) {
-                entries.add(new com.github.mikephil.charting.data.PieEntry((float) item.getTotalAmount(), item.getCategory()));
+                // Thêm dữ liệu có cả tên danh mục (để Legend vẫn hiện)
+                entries.add(new PieEntry((float) item.getTotalAmount(), item.getCategory()));
             }
         }
 
-        com.github.mikephil.charting.data.PieDataSet dataSet = new com.github.mikephil.charting.data.PieDataSet(entries, "");
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
 
-        // Cấp cho nó cái bảng màu rực rỡ
-        dataSet.setColors(com.github.mikephil.charting.utils.ColorTemplate.MATERIAL_COLORS);
-        dataSet.setValueTextSize(14f);
-        dataSet.setValueTextColor(android.graphics.Color.WHITE);
 
-        com.github.mikephil.charting.data.PieData data = new com.github.mikephil.charting.data.PieData(dataSet);
+        pieChart.setDrawEntryLabels(false); // Ẩn nhãn (label)
+
+        PieData data = new PieData(dataSet);
+
+        // TÙY CHỈNH CHỮ SỐ TIỀN CHO NHỎ VÀ RÕ
+        data.setValueTextSize(10f);
+        data.setValueTextColor(Color.WHITE); // Đổi sang màu trắng cho dễ nhìn
+
         pieChart.setData(data);
 
-        // Làm đẹp biểu đồ
-        pieChart.getDescription().setEnabled(false); // Tắt chữ mô tả rườm rà
-        pieChart.setDrawEntryLabels(false); // Tắt chữ đè lên bánh cho đỡ rối
-        pieChart.setCenterText("Chi Tiêu"); // Chữ ở giữa vòng tròn
-        pieChart.setCenterTextSize(18f);
-        pieChart.animateY(1000); // Hiệu ứng xoay tròn tung chảo
-        pieChart.invalidate(); // Bắt đầu vẽ
+        // Giữ lại chú thích ở dưới
+        pieChart.getLegend().setEnabled(true);
+
+        pieChart.animateY(800);
+        pieChart.getDescription().setEnabled(false);
+        pieChart.invalidate();
     }
 }
