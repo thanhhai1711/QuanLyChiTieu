@@ -13,17 +13,14 @@ import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    // Nâng version lên 4 để nó xóa cái cũ, tạo cái mới có bảng Users
     public DatabaseHelper(Context context) {
         super(context, "ChiTieuDB", null, 4);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // 1. Tạo bảng người dùng
         db.execSQL("CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT)");
 
-        // 2. Tạo bảng giao dịch (Có cột date và username)
         db.execSQL("CREATE TABLE transactions (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "amount REAL, " +
@@ -35,7 +32,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Nếu version thay đổi, xóa sạch làm lại cho chắc chắn không lỗi cấu trúc
         db.execSQL("DROP TABLE IF EXISTS transactions");
         db.execSQL("DROP TABLE IF EXISTS users");
         onCreate(db);
@@ -46,11 +42,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public boolean registerUser(String user, String pass) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // Kiểm tra xem tên này đã có ai dùng chưa
         Cursor cursor = db.rawQuery("SELECT * FROM users WHERE username = ?", new String[]{user});
         if (cursor.getCount() > 0) {
             cursor.close();
-            return false; // Trùng tên rồi Hải ơi
+            return false;
         }
         cursor.close();
 
@@ -80,7 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("note", note);
         values.put("category", category);
         values.put("date", currentDate);
-        values.put("username", username); // Lưu thêm tên người dùng vào đây
+        values.put("username", username);
 
         long result = db.insert("transactions", null, values);
         db.close();
@@ -90,7 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public double getTotalAmountByMonth(int month, int year) {
         double total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        String monthFilter = String.format("%d-%02d%%", year, month);
+        String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
 
         Cursor cursor = db.rawQuery("SELECT SUM(amount) FROM transactions WHERE date LIKE ?", new String[]{monthFilter});
         if (cursor.moveToFirst()) {
@@ -103,7 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<CategorySummary> getCategorySummariesByMonth(int month, int year) {
         List<CategorySummary> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String monthFilter = String.format("%d-%02d%%", year, month);
+        String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
 
         String query = "SELECT category, SUM(amount) FROM transactions WHERE date LIKE ? GROUP BY category";
         Cursor cursor = db.rawQuery(query, new String[]{monthFilter});
@@ -121,6 +116,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Transaction> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM transactions WHERE category = ? ORDER BY id DESC", new String[]{categoryName});
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(new Transaction(
+                        cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow("amount")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("note")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("category")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("date"))
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    // --- HÀM MỚI THÊM ĐỂ LỌC VỪA THEO NHÓM VỪA THEO THÁNG ---
+    public List<Transaction> getTransactionsByCategoryAndMonth(String categoryName, int month, int year) {
+        List<Transaction> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Định dạng chuỗi tìm kiếm (VD: 2026-05%)
+        String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
+
+        // Lọc theo cả category VÀ tháng
+        Cursor cursor = db.rawQuery("SELECT * FROM transactions WHERE category = ? AND date LIKE ? ORDER BY id DESC", new String[]{categoryName, monthFilter});
+
+        if (cursor.moveToFirst()) {
+            do {
+                list.add(new Transaction(
+                        cursor.getInt(cursor.getColumnIndexOrThrow("id")),
+                        cursor.getDouble(cursor.getColumnIndexOrThrow("amount")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("note")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("category")),
+                        cursor.getString(cursor.getColumnIndexOrThrow("date"))
+                ));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    public List<Transaction> getTransactionsByMonthList(int month, int year) {
+        List<Transaction> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
+
+        Cursor cursor = db.rawQuery("SELECT * FROM transactions WHERE date LIKE ? ORDER BY id DESC", new String[]{monthFilter});
 
         if (cursor.moveToFirst()) {
             do {

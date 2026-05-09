@@ -6,13 +6,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
-import java.text.DecimalFormat;
 
 public class DetailActivity extends AppCompatActivity {
     private TextView tvDetailTitle;
     private RecyclerView rvDetail;
     private DatabaseHelper db;
-    private String categoryName; // Đưa ra ngoài để dùng chung
+
+    // Khai báo đủ 3 biến để nhận dữ liệu
+    private String categoryName;
+    private int month;
+    private int year;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +27,16 @@ public class DetailActivity extends AppCompatActivity {
         rvDetail.setLayoutManager(new LinearLayoutManager(this));
         db = new DatabaseHelper(this);
 
-        // Nhận tên danh mục
+        // NHẬN DỮ LIỆU TỪ CATEGORY_ADAPTER GỬI SANG
         categoryName = getIntent().getStringExtra("CATEGORY_NAME");
+        month = getIntent().getIntExtra("MONTH", 1);
+        year = getIntent().getIntExtra("YEAR", 2026);
 
         if (categoryName != null) {
-            tvDetailTitle.setText("Chi tiết: " + categoryName);
-            // Gọi hàm load dữ liệu lần đầu
+            // Hiển thị title rành mạch luôn để biết đang xem tháng mấy
+            tvDetailTitle.setText(categoryName + " (Tháng " + month + "/" + year + ")");
+
+            // Gọi hàm load dữ liệu
             loadData();
         }
 
@@ -38,20 +45,15 @@ public class DetailActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
     }
 
-    // ĐÂY LÀ HÀM MÀ THẰNG ADAPTER ĐANG ĐÒI NÈ HẢI
+    // HÀM LOAD DỮ LIỆU ĐÃ ĐƯỢC NÂNG CẤP
     public void loadData() {
         if (categoryName == null) return;
 
-        // 1. Lấy dữ liệu mới từ DB
-        List<Transaction> list = db.getTransactionsByCategory(categoryName);
+        // GỌI HÀM MỚI: Chỉ lấy đúng tên danh mục VÀ đúng cái tháng đó
+        List<Transaction> list = db.getTransactionsByCategoryAndMonth(categoryName, month, year);
 
-        // 2. Đổ vào Adapter
+        // Đổ vào Adapter
         TransactionAdapter adapter = new TransactionAdapter(list);
         rvDetail.setAdapter(adapter);
-
-        // 3. (Tùy chọn) Nếu mày có TextView hiện tổng tiền ở màn hình này thì tính ở đây
-        // double total = 0;
-        // for (Transaction t : list) total += t.getAmount();
-        // tvTotal.setText(new DecimalFormat("#,###").format(total) + " VNĐ");
     }
 }

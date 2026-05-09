@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton; // Thêm cái này
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar; // Thêm cái này để lấy thời gian thực
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         String savedBudget = sharedPreferences.getString("limit", "0");
         etBudget.setText(savedBudget);
 
-        // Trong MainActivity.java
+        // Nút thêm giao dịch
         fabAdd.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddTransactionActivity.class);
             intent.putExtra("USERNAME", getIntent().getStringExtra("USERNAME"));
@@ -139,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (budget > 0 && total > budget) {
             tvTotalBalance.setTextColor(Color.RED);
-            // Lưu ý: Tao tạm ẩn cái AlertDialog ở đây vì mỗi lần bấm nút chuyển tháng nó sẽ hiện lên liên tục gây phiền.
-            // Tao dùng Toast cho nó gọn hơn.
             Toast.makeText(this, "⚠️ Tiêu quá hạn mức tháng này rồi!", Toast.LENGTH_SHORT).show();
         } else {
             tvTotalBalance.setTextColor(Color.parseColor("#4CAF50"));
@@ -149,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
         // --- 2. Cập nhật Biểu đồ ---
         setupPieChart(summaryList);
 
-        // --- 3. Cập nhật Danh sách ---
-        adapter = new CategoryAdapter(summaryList);
+        // --- 3. Cập nhật Danh sách (ĐÃ TRUYỀN THÊM currentMonth VÀ currentYear) ---
+        adapter = new CategoryAdapter(summaryList, currentMonth, currentYear);
         rvTransactions.setAdapter(adapter);
 
         // --- 4. Tìm kiếm ---
@@ -168,28 +166,20 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<PieEntry> entries = new ArrayList<>();
         for (CategorySummary item : summaryList) {
             if (item.getTotalAmount() > 0) {
-                // Thêm dữ liệu có cả tên danh mục (để Legend vẫn hiện)
                 entries.add(new PieEntry((float) item.getTotalAmount(), item.getCategory()));
             }
         }
 
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
-
-
-        pieChart.setDrawEntryLabels(false); // Ẩn nhãn (label)
+        pieChart.setDrawEntryLabels(false);
 
         PieData data = new PieData(dataSet);
-
-        // TÙY CHỈNH CHỮ SỐ TIỀN CHO NHỎ VÀ RÕ
         data.setValueTextSize(10f);
-        data.setValueTextColor(Color.WHITE); // Đổi sang màu trắng cho dễ nhìn
+        data.setValueTextColor(Color.WHITE);
 
         pieChart.setData(data);
-
-        // Giữ lại chú thích ở dưới
         pieChart.getLegend().setEnabled(true);
-
         pieChart.animateY(800);
         pieChart.getDescription().setEnabled(false);
         pieChart.invalidate();

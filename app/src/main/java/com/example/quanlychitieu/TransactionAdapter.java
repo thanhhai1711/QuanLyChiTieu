@@ -9,19 +9,22 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.text.DecimalFormat;
+import java.util.ArrayList; // Đã thêm thư viện này cho ArrayList
 import java.util.List;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
     private List<Transaction> list;
+    private List<Transaction> listFull; // Thêm cái List dự phòng để làm bộ lọc
 
     public TransactionAdapter(List<Transaction> list) {
         this.list = list;
+        // Copy dữ liệu gốc sang listFull ngay khi khởi tạo
+        this.listFull = new ArrayList<>(list);
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Layout item_transaction.xml mày đã sửa thêm tvDateItem rồi nhé
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_transaction, parent, false);
         return new ViewHolder(v);
     }
@@ -44,7 +47,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             holder.tvDate.setText("N/A");
         }
 
-        // 3. Hiển thị số tiền (Xóa số .0 và thêm dấu phân cách)
+        // 3. Hiển thị số tiền
         DecimalFormat formatter = new DecimalFormat("#,###");
         holder.tvAmount.setText("- " + formatter.format(t.getAmount()) + " VNĐ");
 
@@ -61,14 +64,17 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
                         db.deleteTransactionById(t.getId());
 
                         if (actualPosition != RecyclerView.NO_POSITION) {
+                            // SỬA CHỖ NÀY: Xóa ở cả 2 list để khỏi bị "hiện hồn" khi search
+                            Transaction itemToRemove = list.get(actualPosition);
                             list.remove(actualPosition);
+                            listFull.remove(itemToRemove);
+
                             notifyItemRemoved(actualPosition);
                             notifyItemRangeChanged(actualPosition, list.size());
                         }
 
                         Toast.makeText(v.getContext(), "Đã xóa xong!", Toast.LENGTH_SHORT).show();
 
-                        // Cập nhật lại giao diện màn hình chi tiết nếu có hàm loadData
                         if (v.getContext() instanceof DetailActivity) {
                             ((DetailActivity) v.getContext()).loadData();
                         }
@@ -84,14 +90,34 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         return (list != null) ? list.size() : 0;
     }
 
+    // --- HÀM TÌM KIẾM CHO HẢI ĐÂY ---
+    public void filter(String text) {
+        list.clear();
+        if (text.isEmpty()) {
+            // Nếu ô search rỗng thì đổ lại toàn bộ data
+            list.addAll(listFull);
+        } else {
+            text = text.toLowerCase();
+            for (Transaction item : listFull) {
+                // Check null để đề phòng Crash App
+                String note = item.getNote() != null ? item.getNote().toLowerCase() : "";
+                String category = item.getCategory() != null ? item.getCategory().toLowerCase() : "";
+
+                if (note.contains(text) || category.contains(text)) {
+                    list.add(item);
+                }
+            }
+        }
+        notifyDataSetChanged(); // Báo RecyclerView giật lại data
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvNote, tvAmount, tvDate;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNote = itemView.findViewById(R.id.tvNoteItem);
             tvAmount = itemView.findViewById(R.id.tvAmountItem);
-            tvDate = itemView.findViewById(R.id.tvDateItem); // Nhớ check ID này trong XML nhé
+            tvDate = itemView.findViewById(R.id.tvDateItem);
         }
     }
-
 }

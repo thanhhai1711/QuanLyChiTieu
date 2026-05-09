@@ -15,9 +15,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
     private List<CategorySummary> list;
     private List<CategorySummary> listFull; // BẢN GỐC ĐỂ SEARCH
 
-    public CategoryAdapter(List<CategorySummary> list) {
+    // THÊM 2 BIẾN NÀY ĐỂ LƯU THÁNG, NĂM
+    private int currentMonth;
+    private int currentYear;
+
+    // SỬA LẠI HÀM KHỞI TẠO ĐỂ NHẬN THÁNG VÀ NĂM TỪ MAINACTIVITY
+    public CategoryAdapter(List<CategorySummary> list, int currentMonth, int currentYear) {
         this.list = list;
         this.listFull = new ArrayList<>(list); // COPY DỮ LIỆU GỐC
+        this.currentMonth = currentMonth;
+        this.currentYear = currentYear;
     }
 
     @NonNull
@@ -35,9 +42,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.tvCategoryName.setText(item.getCategory());
         holder.tvTotalAmount.setText(formatter.format(item.getTotalAmount()) + " VNĐ");
 
+        // CẬP NHẬT CHỖ BẤM: GỬI KÈM THÁNG VÀ NĂM SANG DETAIL_ACTIVITY
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), DetailActivity.class);
             intent.putExtra("CATEGORY_NAME", item.getCategory());
+            intent.putExtra("MONTH", currentMonth); // Gửi thêm tháng
+            intent.putExtra("YEAR", currentYear);   // Gửi thêm năm
             v.getContext().startActivity(intent);
         });
     }
@@ -47,7 +57,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         return (list != null) ? list.size() : 0;
     }
 
-    // HÀM FILTER PHẢI NẰM Ở ĐÂY!!!
+    // HÀM FILTER
     public void filter(String text) {
         list.clear();
         if (text.isEmpty()) {
