@@ -1,6 +1,8 @@
 package com.example.quanlychitieu;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,6 +12,8 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 
 public class AddTransactionActivity extends AppCompatActivity {
 
@@ -20,6 +24,7 @@ public class AddTransactionActivity extends AppCompatActivity {
     private RadioGroup rgType;
     private RadioButton rbExpense, rbIncome;
     private DatabaseHelper db;
+    private boolean isFormatting = false; // tránh vòng lặp vô tận
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,30 +42,30 @@ public class AddTransactionActivity extends AppCompatActivity {
         db = new DatabaseHelper(this);
 
         btnBackAdd.setOnClickListener(v -> finish());
-
         updateCategorySpinner(false);
+        setupAmountFormat(etAmount);
 
         rgType.setOnCheckedChangeListener((group, checkedId) -> {
-            boolean isIncome = (checkedId == R.id.rbIncome);
-            updateCategorySpinner(isIncome);
+            updateCategorySpinner(checkedId == R.id.rbIncome);
         });
 
         String username = getIntent().getStringExtra("USERNAME");
 
         btnSave.setOnClickListener(view -> {
-            String amountStr = etAmount.getText().toString();
+            // Lấy số thực từ text đã format (bỏ dấu phẩy)
+            String rawAmount = etAmount.getText().toString().replace(",", "");
             String note = etNote.getText().toString();
             String category = spinnerCategory.getSelectedItem().toString();
-            String type = (rbIncome.isChecked()) ? "income" : "expense";
+            String type = rbIncome.isChecked() ? "income" : "expense";
             String user = (username != null) ? username : "default";
 
-            if (amountStr.isEmpty()) {
+            if (rawAmount.isEmpty()) {
                 Toast.makeText(this, "Nhập số tiền đi!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
-                double amount = Double.parseDouble(amountStr);
+                double amount = Double.parseDouble(rawAmount);
                 boolean isInserted = db.insertTransaction(amount, note, category, user, type);
                 if (isInserted) {
                     Toast.makeText(this, "Đã lưu!", Toast.LENGTH_SHORT).show();
@@ -74,13 +79,39 @@ public class AddTransactionActivity extends AppCompatActivity {
         });
     }
 
+    // Tự động thêm dấu phẩy khi nhập
+    private void setupAmountFormat(EditText editText) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+                isFormatting = true;
+
+                String raw = s.toString().replace(",", "");
+                if (!raw.isEmpty()) {
+                    try {
+                        long number = Long.parseLong(raw);
+                        DecimalFormat formatter = new DecimalFormat("#,###");
+                        String formatted = formatter.format(number);
+                        editText.setText(formatted);
+                        editText.setSelection(formatted.length()); // giữ con trỏ cuối
+                    } catch (NumberFormatException e) {
+                        // bỏ qua nếu không parse được
+                    }
+                }
+
+                isFormatting = false;
+            }
+        });
+    }
+
     private void updateCategorySpinner(boolean isIncome) {
-        String[] categories;
-        if (isIncome) {
-            categories = new String[]{"Lương", "Thưởng", "Đầu tư", "Bán hàng", "Thu nhập khác"};
-        } else {
-            categories = new String[]{"Ăn uống", "Di chuyển", "Mua sắm", "Hóa đơn", "Giải trí", "Khác"};
-        }
+        String[] categories = isIncome
+                ? new String[]{"Lương", "Thưởng", "Đầu tư", "Bán hàng", "Thu nhập khác"}
+                : new String[]{"Ăn uống", "Di chuyển", "Mua sắm", "Hóa đơn", "Giải trí", "Khác"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         spinnerCategory.setAdapter(adapter);
     }

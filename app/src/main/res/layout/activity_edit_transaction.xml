@@ -4,22 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#F9FAFB">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#FF9800"
+        android:background="#FFF8E1"
         android:padding="16dp"
         android:gravity="center_vertical">
 
         <ImageView
             android:id="@+id/btnBackEdit"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#FFFFFF"
+            app:tint="#FB8C00"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"/>
@@ -28,106 +28,135 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Sửa Giao Dịch"
-            android:textSize="20sp"
+            android:text="✏️ Sửa Giao Dịch"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="#E65100"
             android:gravity="center"
-            android:layout_marginEnd="30dp"/>
+            android:layout_marginEnd="32dp"/>
     </LinearLayout>
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Loại giao dịch"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:layout_marginBottom="8dp"/>
-
-        <RadioGroup
-            android:id="@+id/rgTypeEdit"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <RadioButton
-                android:id="@+id/rbExpenseEdit"
-                android:layout_width="0dp"
+            <RadioGroup
+                android:id="@+id/rgTypeEdit"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="💸 Chi tiêu"
-                android:textSize="15sp"
-                android:textColor="#E53935"
-                android:checked="true"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
-            <RadioButton
-                android:id="@+id/rbIncomeEdit"
-                android:layout_width="0dp"
+                <RadioButton
+                    android:id="@+id/rbExpenseEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="💸  Chi tiêu"
+                    android:textSize="14sp"
+                    android:textColor="#E53935"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/tab_selector_expense"
+                    android:checked="true"
+                    android:layout_marginEnd="6dp"/>
+
+                <RadioButton
+                    android:id="@+id/rbIncomeEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="💰  Thu nhập"
+                    android:textSize="14sp"
+                    android:textColor="#43A047"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:background="@drawable/tab_selector_income"
+                    android:layout_marginStart="6dp"/>
+            </RadioGroup>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="💰 Thu nhập"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Số tiền"
+                        android:textSize="12sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/etAmountEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:inputType="number"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#424242"
+                        android:padding="12dp"
+                        android:background="@drawable/rounded_edittext"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Danh mục"
+                        android:textSize="12sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginBottom="6dp"/>
+
+                    <Spinner
+                        android:id="@+id/spinnerCategoryEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@drawable/rounded_edittext"
+                        android:paddingStart="12dp"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ghi chú"
+                        android:textSize="12sp"
+                        android:textColor="#9E9E9E"
+                        android:layout_marginBottom="6dp"/>
+
+                    <EditText
+                        android:id="@+id/etNoteEdit"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:padding="12dp"
+                        android:background="@drawable/rounded_edittext"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/btnSaveEdit"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="CẬP NHẬT"
+                android:backgroundTint="#FFE0B2"
+                android:textColor="#E65100"
+                android:textStyle="bold"
                 android:textSize="15sp"
-                android:textColor="#4CAF50"/>
-        </RadioGroup>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Số tiền (VNĐ)"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"/>
-
-        <EditText
-            android:id="@+id/etAmountEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Danh mục"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"/>
-
-        <Spinner
-            android:id="@+id/spinnerCategoryEdit"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginBottom="16dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ghi chú"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#333333"/>
-
-        <EditText
-            android:id="@+id/etNoteEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"/>
-
-        <Button
-            android:id="@+id/btnSaveEdit"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="CẬP NHẬT"
-            android:backgroundTint="#FF9800"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"/>
-    </LinearLayout>
+                android:layout_marginTop="16dp"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
