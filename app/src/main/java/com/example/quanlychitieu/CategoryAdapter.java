@@ -13,18 +13,17 @@ import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHolder> {
     private List<CategorySummary> list;
-    private List<CategorySummary> listFull; // BẢN GỐC ĐỂ SEARCH
-
-    // THÊM 2 BIẾN NÀY ĐỂ LƯU THÁNG, NĂM
+    private List<CategorySummary> listFull;
     private int currentMonth;
     private int currentYear;
+    private String username;
 
-    // SỬA LẠI HÀM KHỞI TẠO ĐỂ NHẬN THÁNG VÀ NĂM TỪ MAINACTIVITY
-    public CategoryAdapter(List<CategorySummary> list, int currentMonth, int currentYear) {
+    public CategoryAdapter(List<CategorySummary> list, int currentMonth, int currentYear, String username) {
         this.list = list;
-        this.listFull = new ArrayList<>(list); // COPY DỮ LIỆU GỐC
+        this.listFull = new ArrayList<>(list);
         this.currentMonth = currentMonth;
         this.currentYear = currentYear;
+        this.username = username;
     }
 
     @NonNull
@@ -42,22 +41,19 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         holder.tvCategoryName.setText(item.getCategory());
         holder.tvTotalAmount.setText(formatter.format(item.getTotalAmount()) + " VNĐ");
 
-        // CẬP NHẬT CHỖ BẤM: GỬI KÈM THÁNG VÀ NĂM SANG DETAIL_ACTIVITY
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), DetailActivity.class);
             intent.putExtra("CATEGORY_NAME", item.getCategory());
-            intent.putExtra("MONTH", currentMonth); // Gửi thêm tháng
-            intent.putExtra("YEAR", currentYear);   // Gửi thêm năm
+            intent.putExtra("MONTH", currentMonth);
+            intent.putExtra("YEAR", currentYear);
+            intent.putExtra("USERNAME", username);
             v.getContext().startActivity(intent);
         });
     }
 
     @Override
-    public int getItemCount() {
-        return (list != null) ? list.size() : 0;
-    }
+    public int getItemCount() { return (list != null) ? list.size() : 0; }
 
-    // HÀM FILTER
     public void filter(String text) {
         list.clear();
         if (text.isEmpty()) {
@@ -65,9 +61,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         } else {
             text = text.toLowerCase().trim();
             for (CategorySummary item : listFull) {
-                if (item.getCategory().toLowerCase().contains(text)) {
-                    list.add(item);
-                }
+                if (item.getCategory().toLowerCase().contains(text)) list.add(item);
             }
         }
         notifyDataSetChanged();

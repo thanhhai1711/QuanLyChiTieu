@@ -45,6 +45,42 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Loại giao dịch"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="8dp"/>
+
+        <RadioGroup
+            android:id="@+id/rgType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/rbExpense"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💸 Chi tiêu"
+                android:textSize="15sp"
+                android:textColor="#E53935"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbIncome"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="💰 Thu nhập"
+                android:textSize="15sp"
+                android:textColor="#4CAF50"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Số tiền (VNĐ)"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -84,7 +120,7 @@
             android:id="@+id/etNote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ăn phở, đổ xăng..."
+            android:hint="Ăn phở, nhận lương tháng 5..."
             android:layout_marginBottom="24dp" />
 
         <Button
