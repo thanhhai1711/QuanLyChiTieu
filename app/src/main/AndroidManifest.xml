@@ -37,6 +37,8 @@
             android:name=".AddTransactionActivity"
             android:exported="false" />
 
+        <activity android:name=".YearlyStatsActivity"/>
+
     </application>
 
 </manifest>
