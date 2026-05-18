@@ -1,6 +1,8 @@
 package com.example.quanlychitieu;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import java.text.DecimalFormat;
 
 public class EditTransactionActivity extends AppCompatActivity {
 
@@ -21,6 +24,7 @@ public class EditTransactionActivity extends AppCompatActivity {
     private RadioButton rbExpense, rbIncome;
     private DatabaseHelper db;
     private int transactionId;
+    private boolean isFormatting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,18 @@ public class EditTransactionActivity extends AppCompatActivity {
         String oldCategory = getIntent().getStringExtra("CATEGORY");
         String oldType = getIntent().getStringExtra("TYPE");
 
-        etAmount.setText(oldAmount);
+        // Format số tiền cũ luôn khi điền vào
+        setupAmountFormat(etAmount);
+        if (oldAmount != null) {
+            try {
+                long num = Long.parseLong(oldAmount.replace(",", ""));
+                DecimalFormat fmt = new DecimalFormat("#,###");
+                etAmount.setText(fmt.format(num));
+            } catch (Exception e) {
+                etAmount.setText(oldAmount);
+            }
+        }
+
         etNote.setText(oldNote);
 
         if ("income".equals(oldType)) {
@@ -57,23 +72,22 @@ public class EditTransactionActivity extends AppCompatActivity {
         }
 
         rgType.setOnCheckedChangeListener((group, checkedId) -> {
-            boolean isIncome = (checkedId == R.id.rbIncomeEdit);
-            updateCategorySpinner(isIncome, null);
+            updateCategorySpinner(checkedId == R.id.rbIncomeEdit, null);
         });
 
         btnSave.setOnClickListener(view -> {
-            String amountStr = etAmount.getText().toString();
+            String rawAmount = etAmount.getText().toString().replace(",", "");
             String note = etNote.getText().toString();
             String category = spinnerCategory.getSelectedItem().toString();
             String type = rbIncome.isChecked() ? "income" : "expense";
 
-            if (amountStr.isEmpty()) {
+            if (rawAmount.isEmpty()) {
                 Toast.makeText(this, "Nhập số tiền đi!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
-                double amount = Double.parseDouble(amountStr);
+                double amount = Double.parseDouble(rawAmount);
                 boolean updated = db.updateTransaction(transactionId, amount, note, category, type);
                 if (updated) {
                     Toast.makeText(this, "Đã cập nhật!", Toast.LENGTH_SHORT).show();
@@ -83,6 +97,32 @@ public class EditTransactionActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Toast.makeText(this, "Tiền phải là số!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupAmountFormat(EditText editText) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+                isFormatting = true;
+
+                String raw = s.toString().replace(",", "");
+                if (!raw.isEmpty()) {
+                    try {
+                        long number = Long.parseLong(raw);
+                        DecimalFormat formatter = new DecimalFormat("#,###");
+                        String formatted = formatter.format(number);
+                        editText.setText(formatted);
+                        editText.setSelection(formatted.length());
+                    } catch (NumberFormatException e) {}
+                }
+
+                isFormatting = false;
             }
         });
     }

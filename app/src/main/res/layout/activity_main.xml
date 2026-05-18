@@ -3,15 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F4F8">
+    android:background="#F9FAFB">
 
     <LinearLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#1E8449"
-        android:paddingBottom="24dp">
+        android:background="#E8F5E9"
+        android:paddingBottom="20dp">
 
         <LinearLayout
             android:id="@+id/layoutMonthPicker"
@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:paddingTop="12dp"
+            android:paddingTop="14dp"
             android:paddingBottom="4dp">
 
             <ImageButton
@@ -28,7 +28,7 @@
                 android:layout_height="40dp"
                 android:src="@android:drawable/ic_media_previous"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="#FFFFFF"/>
+                app:tint="#43A047"/>
 
             <TextView
                 android:id="@+id/tvCurrentMonth"
@@ -36,8 +36,8 @@
                 android:layout_height="wrap_content"
                 android:text="Tháng 05/2026"
                 android:textAlignment="center"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textColor="#2E7D32"
+                android:textSize="17sp"
                 android:textStyle="bold"/>
 
             <ImageButton
@@ -46,25 +46,25 @@
                 android:layout_height="40dp"
                 android:src="@android:drawable/ic_media_next"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="#FFFFFF"/>
+                app:tint="#43A047"/>
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Số dư tháng này"
-            android:textColor="#A9DFBF"
-            android:textSize="13sp"
+            android:textColor="#81C784"
+            android:textSize="12sp"
             android:gravity="center"
-            android:layout_marginTop="8dp"/>
+            android:layout_marginTop="6dp"/>
 
         <TextView
             android:id="@+id/tvTotalBalance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="+0 VNĐ"
-            android:textColor="#FFFFFF"
-            android:textSize="36sp"
+            android:textColor="#2E7D32"
+            android:textSize="34sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginTop="2dp"/>
@@ -73,8 +73,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:paddingHorizontal="24dp">
+            android:layout_marginTop="14dp"
+            android:paddingHorizontal="16dp"
+            android:weightSum="3">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -82,28 +83,27 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#27AE60"
-                android:padding="10dp">
+                android:background="#FFFFFF"
+                android:padding="10dp"
+                android:layout_marginEnd="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="💰 Thu nhập"
-                    android:textColor="#A9DFBF"
+                    android:text="💰 Thu"
+                    android:textColor="#9E9E9E"
                     android:textSize="11sp"/>
 
                 <TextView
                     android:id="@+id/tvIncome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+0 đ"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp"
+                    android:text="+0đ"
+                    android:textColor="#43A047"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_marginTop="3dp"/>
             </LinearLayout>
-
-            <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#1E8449"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -111,28 +111,27 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#27AE60"
-                android:padding="10dp">
+                android:background="#FFFFFF"
+                android:padding="10dp"
+                android:layout_marginHorizontal="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="💸 Chi tiêu"
-                    android:textColor="#A9DFBF"
+                    android:text="💸 Chi"
+                    android:textColor="#9E9E9E"
                     android:textSize="11sp"/>
 
                 <TextView
                     android:id="@+id/tvExpense"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="-0 đ"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp"
+                    android:text="-0đ"
+                    android:textColor="#EF5350"
+                    android:textSize="13sp"
                     android:textStyle="bold"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_marginTop="3dp"/>
             </LinearLayout>
-
-            <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#1E8449"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -140,14 +139,15 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#27AE60"
-                android:padding="10dp">
+                android:background="#FFFFFF"
+                android:padding="10dp"
+                android:layout_marginStart="5dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🎯 Hạn mức"
-                    android:textColor="#A9DFBF"
+                    android:textColor="#9E9E9E"
                     android:textSize="11sp"/>
 
                 <EditText
@@ -156,19 +156,18 @@
                     android:layout_height="wrap_content"
                     android:hint="0"
                     android:inputType="number"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#A9DFBF"
-                    android:textSize="14sp"
+                    android:textColor="#FB8C00"
+                    android:textColorHint="#BDBDBD"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     android:background="@android:color/transparent"
                     android:gravity="center"
-                    android:layout_marginTop="2dp"/>
+                    android:layout_marginTop="3dp"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <ScrollView
-        android:id="@+id/scrollContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layoutHeader"
@@ -185,21 +184,22 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#FFFFFF">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Chi tiêu theo danh mục"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:textColor="#333333"
+                        android:textColor="#424242"
                         android:layout_marginBottom="4dp"/>
 
                     <com.github.mikephil.charting.charts.PieChart
@@ -216,7 +216,7 @@
                 android:layout_marginHorizontal="12dp"
                 android:layout_marginBottom="4dp"
                 android:background="#FFFFFF"
-                android:elevation="2dp"
+                android:elevation="1dp"
                 app:queryHint="Tìm danh mục..."
                 app:iconifiedByDefault="false"/>
 
@@ -226,8 +226,8 @@
                 android:layout_height="wrap_content"
                 android:text="Danh mục chi tiêu"
                 android:textStyle="bold"
-                android:textSize="15sp"
-                android:textColor="#555555"
+                android:textSize="14sp"
+                android:textColor="#757575"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="4dp"/>
@@ -248,9 +248,9 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
         android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="#1E8449"
-        app:tint="@android:color/white"
-        app:elevation="6dp"/>
+        app:backgroundTint="#A5D6A7"
+        app:tint="#2E7D32"
+        app:elevation="4dp"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabStats"
@@ -260,7 +260,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
         android:src="@android:drawable/ic_menu_sort_by_size"
-        app:backgroundTint="#1565C0"
-        app:tint="@android:color/white"
-        app:elevation="6dp"/>
+        app:backgroundTint="#BBDEFB"
+        app:tint="#1565C0"
+        app:elevation="4dp"/>
 </RelativeLayout>

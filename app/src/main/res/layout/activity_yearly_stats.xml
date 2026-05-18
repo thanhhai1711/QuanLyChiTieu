@@ -4,22 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F6F8">
+    android:background="#F9FAFB">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#3F51B5"
+        android:background="#E3F2FD"
         android:padding="16dp"
         android:gravity="center_vertical">
 
         <ImageView
             android:id="@+id/btnBackStats"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#FFFFFF"
+            app:tint="#1976D2"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"/>
@@ -29,11 +29,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Thống Kê Theo Năm"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="#1565C0"
             android:gravity="center"
-            android:layout_marginEnd="30dp"/>
+            android:layout_marginEnd="32dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -41,8 +41,8 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:padding="12dp"
-        android:background="@android:color/white">
+        android:padding="10dp"
+        android:background="#FFFFFF">
 
         <ImageView
             android:id="@+id/btnPrevYear"
@@ -50,6 +50,7 @@
             android:layout_height="40dp"
             android:src="@android:drawable/ic_media_previous"
             android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#90CAF9"
             android:clickable="true"
             android:focusable="true"/>
 
@@ -58,9 +59,9 @@
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="Năm 2026"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#333333"
+            android:textColor="#1565C0"
             android:gravity="center"/>
 
         <ImageView
@@ -69,6 +70,7 @@
             android:layout_height="40dp"
             android:src="@android:drawable/ic_media_next"
             android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="#90CAF9"
             android:clickable="true"
             android:focusable="true"/>
     </LinearLayout>
@@ -76,24 +78,24 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="6dp">
+        android:layout_margin="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@android:color/white"
             android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tổng kết cả năm"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="8dp"/>
+                android:textSize="13sp"
+                android:textColor="#9E9E9E"
+                android:layout_marginBottom="10dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,8 +107,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Thu: +0 đ"
-                    android:textColor="#4CAF50"
+                    android:text="Thu: +0đ"
+                    android:textColor="#43A047"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:gravity="center"/>
@@ -116,8 +118,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Chi: -0 đ"
-                    android:textColor="#E53935"
+                    android:text="Chi: -0đ"
+                    android:textColor="#EF5350"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:gravity="center"/>
@@ -127,12 +129,12 @@
                 android:id="@+id/tvYearBalance"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Số dư: 0 đ"
-                android:textSize="18sp"
+                android:text="Số dư: 0đ"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#4CAF50"
+                android:textColor="#43A047"
                 android:gravity="center"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="10dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -140,9 +142,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Thu nhập vs Chi tiêu theo tháng"
-        android:textSize="15sp"
+        android:textSize="13sp"
         android:textStyle="bold"
-        android:textColor="#333333"
+        android:textColor="#757575"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="4dp"/>
 
@@ -151,6 +153,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_margin="16dp"/>
-
+        android:layout_margin="12dp"/>
 </LinearLayout>

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#1E8449">
+    android:background="#F9FAFB">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,25 +16,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="💰"
-            android:textSize="64sp"
+            android:textSize="72sp"
             android:gravity="center"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Quản Lý Chi Tiêu"
-            android:textSize="28sp"
+            android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="#2E7D32"
             android:layout_marginTop="12dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Kiểm soát tài chính của bạn"
+            android:text="Kiểm soát tài chính mỗi ngày"
             android:textSize="14sp"
-            android:textColor="#C8E6C9"
-            android:layout_marginTop="4dp"/>
+            android:textColor="#9E9E9E"
+            android:layout_marginTop="6dp"/>
     </LinearLayout>
 
     <LinearLayout
@@ -48,9 +48,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Đăng nhập"
-            android:textSize="22sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="#1E8449"
+            android:textColor="#2E7D32"
             android:layout_marginBottom="20dp"/>
 
         <EditText
@@ -78,17 +78,17 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:text="ĐĂNG NHẬP"
-            android:backgroundTint="#1E8449"
-            android:textColor="#FFFFFF"
+            android:backgroundTint="#A5D6A7"
+            android:textColor="#2E7D32"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="15sp"/>
 
         <TextView
             android:id="@+id/tvRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Chưa có tài khoản? Đăng ký ngay"
-            android:textColor="#1E8449"
+            android:textColor="#66BB6A"
             android:textSize="14sp"
             android:gravity="center"
             android:padding="12dp"/>
