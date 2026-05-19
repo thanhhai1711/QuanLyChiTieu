@@ -69,7 +69,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
-    // Cập nhật giao dịch
     public boolean updateTransaction(int id, double amount, String note, String category, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -110,9 +109,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<CategorySummary> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
-        String query = "SELECT category, SUM(amount) FROM transactions " +
-                "WHERE date LIKE ? AND type = 'expense' AND username = ? GROUP BY category";
-        Cursor cursor = db.rawQuery(query, new String[]{monthFilter, username});
+        Cursor cursor = db.rawQuery(
+                "SELECT category, SUM(amount) FROM transactions WHERE date LIKE ? AND type = 'expense' AND username = ? GROUP BY category",
+                new String[]{monthFilter, username});
+        if (cursor.moveToFirst()) {
+            do { list.add(new CategorySummary(cursor.getString(0), cursor.getDouble(1))); }
+            while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
+
+    public List<CategorySummary> getIncomeSummariesByMonth(int month, int year, String username) {
+        List<CategorySummary> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String monthFilter = String.format(Locale.getDefault(), "%d-%02d%%", year, month);
+        Cursor cursor = db.rawQuery(
+                "SELECT category, SUM(amount) FROM transactions WHERE date LIKE ? AND type = 'income' AND username = ? GROUP BY category",
+                new String[]{monthFilter, username});
         if (cursor.moveToFirst()) {
             do { list.add(new CategorySummary(cursor.getString(0), cursor.getDouble(1))); }
             while (cursor.moveToNext());
