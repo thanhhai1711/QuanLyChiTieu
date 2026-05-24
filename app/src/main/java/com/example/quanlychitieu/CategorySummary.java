@@ -11,4 +11,6 @@ public class CategorySummary {
 
     public String getCategory() { return category; }
     public double getTotalAmount() { return totalAmount; }
+    public void setCategory(String category) { this.category = category; }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
 }
