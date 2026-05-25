@@ -25,7 +25,7 @@ public class DatabaseHelper {
 
     public boolean checkUser(String username, String password) {
         return db.userDao().checkUser(username, password) > 0;
-    }
+        }
 
     // --- GIAO DỊCH ---
 

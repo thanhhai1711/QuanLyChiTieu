@@ -39,6 +39,8 @@
 
         <activity android:name=".YearlyStatsActivity"/>
 
+        <activity android:name=".EditTransactionActivity"/>
+
     </application>
 
 </manifest>
