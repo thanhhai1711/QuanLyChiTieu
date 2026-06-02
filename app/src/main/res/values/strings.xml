@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QuanLyChiTieu</string>
+    <string name="text_register">Chưa có tài khoản? <font color="#4CAF50">Đăng ký ngay</font></string>
+
 </resources>
