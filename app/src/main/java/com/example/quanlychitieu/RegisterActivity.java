@@ -38,17 +38,17 @@ public class RegisterActivity extends AppCompatActivity {
             String confirm = etConfirm.getText().toString().trim();
 
             if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Điền đủ thông tin đi Hải!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Điền đủ thông tin đi", Toast.LENGTH_SHORT).show();
             } else if (!pass.equals(confirm)) {
-                Toast.makeText(this, "Mật khẩu không khớp mày ơi!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Mật khẩu không khớp", Toast.LENGTH_SHORT).show();
             } else {
                 // Gọi hàm lưu vào Database (Bản fix version 4 tao gửi lúc nãy)
                 if (db.registerUser(user, pass)) {
-                    Toast.makeText(this, "Đăng ký xong rồi, biến ra đăng nhập đi!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_LONG).show();
                     finish();
                 } else {
                     // Nếu nó vào đây thường là do trùng username
-                    Toast.makeText(this, "Tên này có đứa dùng rồi hoặc lỗi DB!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Tên này có người dùng rồi hoặc lỗi DB!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

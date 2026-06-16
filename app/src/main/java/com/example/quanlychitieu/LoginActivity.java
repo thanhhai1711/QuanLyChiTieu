@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
             String pass = etPassword.getText().toString();
 
             if (user.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Nhập đủ thông tin đi mày!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Nhập đủ thông tin đi!", Toast.LENGTH_SHORT).show();
             } else {
                 // Gọi hàm checkUser trong DatabaseHelper (Hàm này tao bảo mày thêm lúc nãy đó)
                 if (db.checkUser(user, pass)) {
