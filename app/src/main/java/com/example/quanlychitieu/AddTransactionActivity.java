@@ -3,6 +3,7 @@ package com.example.quanlychitieu;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 
 public class AddTransactionActivity extends AppCompatActivity {
 
@@ -24,7 +24,6 @@ public class AddTransactionActivity extends AppCompatActivity {
     private RadioGroup rgType;
     private RadioButton rbExpense, rbIncome;
     private DatabaseHelper db;
-    private boolean isFormatting = false; // tránh vòng lặp vô tận
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +51,8 @@ public class AddTransactionActivity extends AppCompatActivity {
         String username = getIntent().getStringExtra("USERNAME");
 
         btnSave.setOnClickListener(view -> {
-            // Lấy số thực từ text đã format (bỏ dấu phẩy)
-            String rawAmount = etAmount.getText().toString().replace(",", "");
+            // Sử dụng replaceAll("[^0-9]", "") để loại bỏ tất cả ký tự không phải số (phẩy, chấm, khoảng cách...)
+            String rawAmount = etAmount.getText().toString().replaceAll("[^0-9]", "").trim();
             String note = etNote.getText().toString();
             String category = spinnerCategory.getSelectedItem().toString();
             String type = rbIncome.isChecked() ? "income" : "expense";
@@ -68,44 +67,53 @@ public class AddTransactionActivity extends AppCompatActivity {
                 double amount = Double.parseDouble(rawAmount);
                 boolean isInserted = db.insertTransaction(amount, note, category, user, type);
                 if (isInserted) {
-                    Toast.makeText(this, "Đã lưu!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Đã lưu thành công!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK); // Báo cho MainActivity biết để cập nhật lại danh sách
                     finish();
                 } else {
                     Toast.makeText(this, "Lỗi lưu dữ liệu!", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Toast.makeText(this, "Tiền phải là số!", Toast.LENGTH_SHORT).show();
+                Log.e("AddTransaction", "Error saving transaction", e);
+                Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Tự động thêm dấu phẩy khi nhập
-    private void setupAmountFormat(EditText editText) {
-        editText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+    private class AmountTextWatcher implements TextWatcher {
+        private final EditText editText;
+        private boolean isFormatting = false;
 
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (isFormatting) return;
+        AmountTextWatcher(EditText editText) {
+            this.editText = editText;
+        }
+
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (isFormatting) return;
+
+            String raw = s.toString().replaceAll("[^0-9]", "").trim();
+            if (raw.isEmpty()) return;
+
+            try {
+                long number = Long.parseLong(raw);
+                String formatted = new DecimalFormat("#,###").format(number);
+
                 isFormatting = true;
-
-                String raw = s.toString().replace(",", "");
-                if (!raw.isEmpty()) {
-                    try {
-                        long number = Long.parseLong(raw);
-                        DecimalFormat formatter = new DecimalFormat("#,###");
-                        String formatted = formatter.format(number);
-                        editText.setText(formatted);
-                        editText.setSelection(formatted.length()); // giữ con trỏ cuối
-                    } catch (NumberFormatException e) {
-                        // bỏ qua nếu không parse được
-                    }
-                }
-
+                editText.setText(formatted);
+                editText.setSelection(formatted.length());
+                isFormatting = false;
+            } catch (NumberFormatException e) {
                 isFormatting = false;
             }
-        });
+        }
+    }
+
+    private void setupAmountFormat(EditText editText) {
+        editText.addTextChangedListener(new AmountTextWatcher(editText));
     }
 
     private void updateCategorySpinner(boolean isIncome) {

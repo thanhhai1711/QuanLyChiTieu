@@ -3,6 +3,7 @@ package com.example.quanlychitieu;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,13 +50,13 @@ public class EditTransactionActivity extends AppCompatActivity {
         String oldCategory = getIntent().getStringExtra("CATEGORY");
         String oldType = getIntent().getStringExtra("TYPE");
 
-        // Format số tiền cũ luôn khi điền vào
         setupAmountFormat(etAmount);
         if (oldAmount != null) {
             try {
-                long num = Long.parseLong(oldAmount.replace(",", ""));
-                DecimalFormat fmt = new DecimalFormat("#,###");
-                etAmount.setText(fmt.format(num));
+                // Làm sạch chuỗi trước khi parse
+                String cleanAmount = oldAmount.replaceAll("[^0-9]", "");
+                long num = Long.parseLong(cleanAmount);
+                etAmount.setText(new DecimalFormat("#,###").format(num));
             } catch (Exception e) {
                 etAmount.setText(oldAmount);
             }
@@ -76,7 +77,7 @@ public class EditTransactionActivity extends AppCompatActivity {
         });
 
         btnSave.setOnClickListener(view -> {
-            String rawAmount = etAmount.getText().toString().replace(",", "");
+            String rawAmount = etAmount.getText().toString().replaceAll("[^0-9]", "").trim();
             String note = etNote.getText().toString();
             String category = spinnerCategory.getSelectedItem().toString();
             String type = rbIncome.isChecked() ? "income" : "expense";
@@ -91,12 +92,14 @@ public class EditTransactionActivity extends AppCompatActivity {
                 boolean updated = db.updateTransaction(transactionId, amount, note, category, type);
                 if (updated) {
                     Toast.makeText(this, "Đã cập nhật!", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_OK);
                     finish();
                 } else {
                     Toast.makeText(this, "Lỗi cập nhật!", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
-                Toast.makeText(this, "Tiền phải là số!", Toast.LENGTH_SHORT).show();
+                Log.e("EditTransaction", "Error updating", e);
+                Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -109,19 +112,17 @@ public class EditTransactionActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 if (isFormatting) return;
+                
+                String raw = s.toString().replaceAll("[^0-9]", "").trim();
+                if (raw.isEmpty()) return;
+
                 isFormatting = true;
-
-                String raw = s.toString().replace(",", "");
-                if (!raw.isEmpty()) {
-                    try {
-                        long number = Long.parseLong(raw);
-                        DecimalFormat formatter = new DecimalFormat("#,###");
-                        String formatted = formatter.format(number);
-                        editText.setText(formatted);
-                        editText.setSelection(formatted.length());
-                    } catch (NumberFormatException e) {}
-                }
-
+                try {
+                    long number = Long.parseLong(raw);
+                    String formatted = new DecimalFormat("#,###").format(number);
+                    editText.setText(formatted);
+                    editText.setSelection(formatted.length());
+                } catch (NumberFormatException e) {}
                 isFormatting = false;
             }
         });
