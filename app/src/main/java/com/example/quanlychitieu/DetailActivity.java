@@ -36,11 +36,18 @@ public class DetailActivity extends AppCompatActivity {
 
         if (categoryName != null) {
             tvDetailTitle.setText(categoryName + " (Tháng " + month + "/" + year + ")");
-            loadData();
         }
 
         ImageView btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
+    }
+
+    // QUAN TRỌNG: tự load lại data mỗi khi quay về màn hình này
+    // (kể cả sau khi Sửa hoặc Xóa giao dịch ở màn hình khác)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     public void loadData() {

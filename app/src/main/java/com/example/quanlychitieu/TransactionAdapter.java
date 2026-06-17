@@ -1,6 +1,7 @@
 package com.example.quanlychitieu;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,12 +35,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         Transaction t = list.get(position);
         DecimalFormat formatter = new DecimalFormat("#,###");
 
-        if (t.getNote() == null || t.getNote().isEmpty()) {
-            holder.tvNote.setText(t.getCategory());
-        } else {
-            holder.tvNote.setText(t.getNote());
-        }
-
+        holder.tvNote.setText((t.getNote() == null || t.getNote().isEmpty()) ? t.getCategory() : t.getNote());
         holder.tvDate.setText(t.getDate() != null ? t.getDate() : "N/A");
 
         if (t.isIncome()) {
@@ -50,28 +46,44 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             holder.tvAmount.setTextColor(Color.RED);
         }
 
+        // Nhấn giữ: hiện dialog chọn Sửa hoặc Xóa
         holder.itemView.setOnLongClickListener(v -> {
             int actualPosition = holder.getAdapterPosition();
+            String label = (t.getNote() == null || t.getNote().isEmpty()) ? t.getCategory() : t.getNote();
+
             new AlertDialog.Builder(v.getContext())
-                    .setTitle("Xóa giao dịch này?")
-                    .setMessage("Xóa '" + (t.getNote().isEmpty() ? t.getCategory() : t.getNote()) +
-                            "' " + formatter.format(t.getAmount()) + " đ?")
-                    .setPositiveButton("Xóa", (dialog, which) -> {
-                        DatabaseHelper db = new DatabaseHelper(v.getContext());
-                        db.deleteTransactionById(t.getId());
-                        if (actualPosition != RecyclerView.NO_POSITION) {
-                            Transaction itemToRemove = list.get(actualPosition);
-                            list.remove(actualPosition);
-                            listFull.remove(itemToRemove);
-                            notifyItemRemoved(actualPosition);
-                            notifyItemRangeChanged(actualPosition, list.size());
-                        }
-                        Toast.makeText(v.getContext(), "Đã xóa!", Toast.LENGTH_SHORT).show();
-                        if (v.getContext() instanceof DetailActivity) {
-                            ((DetailActivity) v.getContext()).loadData();
+                    .setTitle(label)
+                    .setItems(new String[]{"✏️ Sửa giao dịch", "🗑️ Xóa giao dịch"}, (dialog, which) -> {
+                        if (which == 0) {
+                            Intent intent = new Intent(v.getContext(), EditTransactionActivity.class);
+                            intent.putExtra("TRANSACTION_ID", t.getId());
+                            intent.putExtra("AMOUNT", String.valueOf((long) t.getAmount()));
+                            intent.putExtra("NOTE", t.getNote());
+                            intent.putExtra("CATEGORY", t.getCategory());
+                            intent.putExtra("TYPE", t.getType());
+                            v.getContext().startActivity(intent);
+                        } else {
+                            new AlertDialog.Builder(v.getContext())
+                                    .setTitle("Xóa giao dịch?")
+                                    .setMessage("Xóa '" + label + "' " + formatter.format(t.getAmount()) + " đ?")
+                                    .setPositiveButton("Xóa", (d, w) -> {
+                                        new DatabaseHelper(v.getContext()).deleteTransactionById(t.getId());
+                                        if (actualPosition != RecyclerView.NO_POSITION) {
+                                            Transaction item = list.get(actualPosition);
+                                            list.remove(actualPosition);
+                                            listFull.remove(item);
+                                            notifyItemRemoved(actualPosition);
+                                            notifyItemRangeChanged(actualPosition, list.size());
+                                        }
+                                        Toast.makeText(v.getContext(), "Đã xóa!", Toast.LENGTH_SHORT).show();
+                                        if (v.getContext() instanceof DetailActivity) {
+                                            ((DetailActivity) v.getContext()).loadData();
+                                        }
+                                    })
+                                    .setNegativeButton("Thôi", null)
+                                    .show();
                         }
                     })
-                    .setNegativeButton("Thôi", null)
                     .show();
             return true;
         });
